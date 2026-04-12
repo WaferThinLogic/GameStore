@@ -1,0 +1,46 @@
+@model IEnumerable<GameStore.Models.Game>
+
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="jumbotron bg-primary text-white p-5 rounded-3 mb-4">
+    <h1 class="display-4">Welcome to GameStore!</h1>
+    <p class="lead">Discover the best games at unbeatable prices. Your next adventure awaits!</p>
+    <a asp-action="Browse" class="btn btn-light btn-lg">Browse Games</a>
+</div>
+
+<h2 class="mb-4">Latest Games</h2>
+<div class="row">
+    @foreach (var game in Model)
+    {
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                @if (!string.IsNullOrEmpty(game.ImageUrl))
+                {
+                    <img src="@game.ImageUrl" class="card-img-top" alt="@game.Title" style="height: 200px; object-fit: cover;">
+                }
+                else
+                {
+                    <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="bi bi-controller display-1 text-white"></i>
+                    </div>
+                }
+                <div class="card-body">
+                    <h5 class="card-title">@game.Title</h5>
+                    <p class="card-text text-muted">@game.Category?.Name</p>
+                    <p class="card-text fw-bold text-primary">$@game.Price</p>
+                </div>
+                <div class="card-footer bg-white border-0">
+                    <a asp-action="Details" asp-route-id="@game.Id" class="btn btn-outline-primary">View Details</a>
+                    <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline">
+                        <input type="hidden" name="gameId" value="@game.Id" />
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-cart-plus"></i> Add
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>

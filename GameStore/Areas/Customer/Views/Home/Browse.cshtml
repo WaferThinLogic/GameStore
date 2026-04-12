@@ -1,0 +1,75 @@
+@model IEnumerable<GameStore.Models.Game>
+
+@{
+    ViewData["Title"] = "Browse Games";
+    var categories = ViewBag.Categories as List<GameStore.Models.Category>;
+    var selectedCategory = ViewBag.SelectedCategory as int?;
+}
+
+<h1 class="mb-4">Browse Games</h1>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Categories</h5>
+            </div>
+            <div class="card-body">
+                <a asp-action="Browse" class="list-group-item list-group-item-action @(selectedCategory == null ? "active" : "")">
+                    All Games
+                </a>
+                @foreach (var category in categories ?? new List<GameStore.Models.Category>())
+                {
+                    <a asp-action="Browse" asp-route-categoryId="@category.Id" 
+                       class="list-group-item list-group-item-action @(selectedCategory == category.Id ? "active" : "")">
+                        @category.Name
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9">
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> No games found in this category.
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                @foreach (var game in Model)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card game-card h-100">
+                            @if (!string.IsNullOrEmpty(game.ImageUrl))
+                            {
+                                <img src="@game.ImageUrl" class="card-img-top" alt="@game.Title" style="height: 200px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="bi bi-controller display-1 text-white"></i>
+                                </div>
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@game.Title</h5>
+                                <p class="card-text">@game.Category?.Name</p>
+                                <p class="price">$@game.Price</p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0">
+                                <a asp-action="Details" asp-route-id="@game.Id" class="btn btn-outline-primary btn-sm">View</a>
+                                <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline">
+                                    <input type="hidden" name="gameId" value="@game.Id" />
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
