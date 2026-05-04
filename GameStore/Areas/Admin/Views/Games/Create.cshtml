@@ -13,6 +13,12 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
+        <div class="text-center mb-3">
+            <div class="card-img-container d-inline-block" style="width: 300px; height: 200px; background: #000;">
+                <img id="imagePreview" src="" alt="Image Preview" style="object-fit: contain; display: none;" />
+                <span id="imagePlaceholder" class="text-muted">Image preview will appear here</span>
+            </div>
+        </div>
         <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
@@ -51,7 +57,7 @@
                     
                     <div class="mb-3">
                         <label asp-for="ImageUrl" class="form-label"></label>
-                        <input asp-for="ImageUrl" class="form-control" placeholder="https://example.com/image.jpg" />
+                        <input asp-for="ImageUrl" id="imageUrl" class="form-control" placeholder="https://example.com/image.jpg" />
                         <span asp-validation-for="ImageUrl" class="text-danger"></span>
                     </div>
                     
@@ -76,4 +82,19 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.getElementById('imageUrl').addEventListener('input', function() {
+            var url = this.value;
+            var img = document.getElementById('imagePreview');
+            var placeholder = document.getElementById('imagePlaceholder');
+            if (url && url.startsWith('http')) {
+                img.src = url;
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+            } else {
+                img.style.display = 'none';
+                placeholder.style.display = 'block';
+            }
+        });
+    </script>
 }

@@ -15,15 +15,17 @@
     @foreach (var game in Model)
     {
         <div class="col-md-3 mb-4">
-            <div class="card h-100 shadow-sm">
+            <div class="card h-100 shadow-sm game-card">
                 @if (!string.IsNullOrEmpty(game.ImageUrl))
                 {
-                    <img src="@game.ImageUrl" class="card-img-top" alt="@game.Title" style="height: 200px; object-fit: cover;">
+                    <div class="card-img-container">
+                        <img src="@game.ImageUrl" alt="@game.Title">
+                    </div>
                 }
                 else
                 {
-                    <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
-                        <i class="bi bi-controller display-1 text-white"></i>
+                    <div class="card-img-container d-flex align-items-center justify-content-center">
+                        <i class="bi bi-controller display-4 text-white"></i>
                     </div>
                 }
                 <div class="card-body">

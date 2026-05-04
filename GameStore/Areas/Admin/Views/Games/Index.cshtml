@@ -30,7 +30,9 @@
                     {
                         <tr>
                             <td>
-                                <img src="@item.ImageUrl" alt="@item.Title" style="width: 50px; height: 50px; object-fit: cover;" class="rounded" />
+                                <div class="card-img-container rounded" style="width: 50px; height: 50px; overflow: hidden;">
+                                    <img src="@item.ImageUrl" alt="@item.Title" style="object-fit: contain;" />
+                                </div>
                             </td>
                             <td>@item.Title</td>
                             <td>@item.Category?.Name</td>

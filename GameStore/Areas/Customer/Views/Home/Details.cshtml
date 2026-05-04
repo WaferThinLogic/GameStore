@@ -8,11 +8,13 @@
     <div class="col-md-6">
         @if (!string.IsNullOrEmpty(Model.ImageUrl))
         {
-            <img src="@Model.ImageUrl" class="img-fluid rounded shadow-sm" alt="@Model.Title">
+            <div class="card-img-container rounded shadow-sm" style="height: 400px;">
+                <img src="@Model.ImageUrl" alt="@Model.Title" style="object-fit: contain;">
+            </div>
         }
         else
         {
-            <div class="bg-secondary d-flex align-items-center justify-content-center rounded" style="height: 400px;">
+            <div class="card-img-container d-flex align-items-center justify-content-center rounded" style="height: 400px;">
                 <i class="bi bi-controller display-1 text-white"></i>
             </div>
         }

@@ -20,7 +20,9 @@
     <div class="card-body">
         <div class="row">
             <div class="col-md-4">
-                <img src="@Model.ImageUrl" alt="@Model.Title" class="img-fluid rounded" />
+                <div class="card-img-container rounded" style="height: 300px;">
+                    <img src="@Model.ImageUrl" alt="@Model.Title" style="object-fit: contain;" />
+                </div>
             </div>
             <div class="col-md-8">
                 <h3>@Model.Title</h3>

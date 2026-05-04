@@ -13,6 +13,14 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <div class="text-center mb-3">
+                <div class="card-img-container d-inline-block" style="width: 300px; height: 200px;">
+                    <img src="@Model.ImageUrl" alt="@Model.Title" style="object-fit: contain;" />
+                </div>
+            </div>
+        }
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
