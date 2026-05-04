@@ -43,11 +43,17 @@
                                     <i class="bi bi-person-circle"></i> @User.Identity?.Name
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
-                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Games" asp-action="Index">Admin Panel</a></li>
+                                    <li><a class="dropdown-item" asp-area="Customer" asp-controller="Cart" asp-action="OrderHistory"><i class="bi bi-clock-history"></i> Order History</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li class="dropdown-header">Admin</li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Games" asp-action="Index"><i class="bi bi-controller"></i> Games</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Categories" asp-action="Index"><i class="bi bi-tags"></i> Categories</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Suppliers" asp-action="Index"><i class="bi bi-truck"></i> Suppliers</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Orders" asp-action="Index"><i class="bi bi-receipt"></i> Orders</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                            <button type="submit" class="dropdown-item">Logout</button>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline" asp-antiforgery="true">
+                                            <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right"></i> Logout</button>
                                         </form>
                                     </li>
                                 </ul>
@@ -69,17 +75,13 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
+    <div class="content-wrapper">
         <div class="container">
-            &copy; 2026 - GameStore - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
         </div>
-    </footer>
+    </div>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

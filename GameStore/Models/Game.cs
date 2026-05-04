@@ -27,8 +27,14 @@ public class Game
 
     public int Stock { get; set; }
 
+    public int? SupplierId { get; set; }
+
     // Navigation properties
     public Category? Category { get; set; }
 
+    public Supplier? Supplier { get; set; }
+
     public ICollection<CartItem>? CartItems { get; set; }
+    
+    public ICollection<OrderDetail>? OrderDetails { get; set; }
 }

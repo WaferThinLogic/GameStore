@@ -23,6 +23,7 @@ namespace GameStore.Areas.Admin.Controllers
         {
             var games = await _context.Games
             .Include(g => g.Category)
+            .Include(g => g.Supplier)
             .ToListAsync();
             return View(games);
         }
@@ -51,13 +52,14 @@ namespace GameStore.Areas.Admin.Controllers
         public IActionResult Create()
         {
             ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name");
+            ViewBag.Suppliers = new SelectList(_context.Suppliers, "Id", "Name");
             return View();
         }
 
         // POST: Admin/Games/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description,Price,ImageUrl,CategoryId")] Game game)
+        public async Task<IActionResult> Create([Bind("Id,Title,Description,Price,ImageUrl,CategoryId,SupplierId")] Game game)
         {
             if (ModelState.IsValid)
             {
@@ -66,6 +68,7 @@ namespace GameStore.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", game.CategoryId);
+            ViewBag.Suppliers = new SelectList(_context.Suppliers, "Id", "Name", game.SupplierId);
             return View(game);
         }
 
@@ -83,13 +86,14 @@ namespace GameStore.Areas.Admin.Controllers
                 return NotFound();
             }
             ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", game.CategoryId);
+            ViewBag.Suppliers = new SelectList(_context.Suppliers, "Id", "Name", game.SupplierId);
             return View(game);
         }
 
         // POST: Admin/Games/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Price,ImageUrl,CategoryId")] Game game)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Price,ImageUrl,CategoryId,SupplierId")] Game game)
         {
             if (id != game.Id)
             {
@@ -117,6 +121,7 @@ namespace GameStore.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", game.CategoryId);
+            ViewBag.Suppliers = new SelectList(_context.Suppliers, "Id", "Name", game.SupplierId);
             return View(game);
         }
 

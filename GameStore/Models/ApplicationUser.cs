@@ -23,6 +23,8 @@ public class ApplicationUser : IdentityUser
     [StringLength(50)]
     public string? Country { get; set; }
 
-    // Navigation property
+    // Navigation properties
     public ICollection<Cart>? Carts { get; set; }
+    
+    public ICollection<Order>? Orders { get; set; }
 }

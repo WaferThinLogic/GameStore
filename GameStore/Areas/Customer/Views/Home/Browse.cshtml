@@ -4,26 +4,75 @@
     ViewData["Title"] = "Browse Games";
     var categories = ViewBag.Categories as List<GameStore.Models.Category>;
     var selectedCategory = ViewBag.SelectedCategory as int?;
+    var searchQuery = ViewBag.SearchQuery as string;
+    var minPrice = ViewBag.MinPrice as int?;
+    var maxPrice = ViewBag.MaxPrice as int?;
 }
 
 <h1 class="mb-4">Browse Games</h1>
 
 <div class="row">
     <div class="col-md-3 mb-4">
-        <div class="card shadow-sm">
+        <div class="card shadow-sm mb-3">
             <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-funnel"></i> Filters</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Browse" method="get">
+                    <div class="mb-3">
+                        <label class="form-label">Search</label>
+                        <input type="text" name="searchQuery" class="form-control" placeholder="Game title..." value="@searchQuery" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select name="categoryId" class="form-select">
+                            <option value="">All Categories</option>
+                            @if (categories != null)
+                            {
+                                @foreach (var category in categories)
+                                {
+                                    <option value="@category.Id" selected="@(selectedCategory == category.Id)">@category.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Min Price ($)</label>
+                        <input type="number" name="minPrice" class="form-control" placeholder="0" value="@minPrice" min="0" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Max Price ($)</label>
+                        <input type="number" name="maxPrice" class="form-control" placeholder="Any" value="@maxPrice" min="0" />
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                        <a asp-action="Browse" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Clear
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
                 <h5 class="mb-0">Categories</h5>
             </div>
             <div class="card-body">
-                <a asp-action="Browse" class="list-group-item list-group-item-action @(selectedCategory == null ? "active" : "")">
+                <a asp-action="Browse" class="list-group-item list-group-item-action @(selectedCategory == null && string.IsNullOrEmpty(searchQuery) ? "active" : "")">
                     All Games
                 </a>
-                @foreach (var category in categories ?? new List<GameStore.Models.Category>())
+                @if (categories != null)
                 {
-                    <a asp-action="Browse" asp-route-categoryId="@category.Id" 
-                       class="list-group-item list-group-item-action @(selectedCategory == category.Id ? "active" : "")">
-                        @category.Name
-                    </a>
+                    @foreach (var category in categories)
+                    {
+                        <a asp-action="Browse" asp-route-categoryId="@category.Id" 
+                           class="list-group-item list-group-item-action @(selectedCategory == category.Id ? "active" : "")">
+                            @category.Name
+                        </a>
+                    }
                 }
             </div>
         </div>
@@ -32,11 +81,42 @@
         @if (!Model.Any())
         {
             <div class="alert alert-info">
-                <i class="bi bi-info-circle"></i> No games found in this category.
+                <i class="bi bi-info-circle"></i> No games found matching your criteria.
             </div>
         }
         else
         {
+            @if (!string.IsNullOrEmpty(searchQuery) || selectedCategory.HasValue || minPrice.HasValue || maxPrice.HasValue)
+            {
+                <div class="alert alert-info mb-3">
+                    <i class="bi bi-funnel"></i> 
+                    Showing results for: 
+                    @if (!string.IsNullOrEmpty(searchQuery))
+                    {
+                        <strong>"@searchQuery"</strong>
+                    }
+                    @if (selectedCategory.HasValue && categories != null)
+                    {
+                        var cat = categories.FirstOrDefault(c => c.Id == selectedCategory.Value);
+                        <text>Category: <strong>@cat?.Name</strong></text>
+                    }
+                    @if (minPrice.HasValue || maxPrice.HasValue)
+                    {
+                        <text>Price: <strong>
+                            @if (minPrice.HasValue)
+                            {
+                                <text>$@minPrice</text>
+                            }
+                            <text> - </text>
+                            @if (maxPrice.HasValue)
+                            {
+                                <text>$@maxPrice</text>
+                            }
+                        </strong></text>
+                    }
+                    <a asp-action="Browse" class="btn btn-sm btn-outline-secondary ms-2">Clear all</a>
+                </div>
+            }
             <div class="row">
                 @foreach (var game in Model)
                 {

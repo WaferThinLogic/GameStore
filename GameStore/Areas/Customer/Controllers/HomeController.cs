@@ -25,7 +25,7 @@ namespace GameStore.Areas.Customer.Controllers
             return View(games);
         }
 
-        public async Task<IActionResult> Browse(int? categoryId)
+        public async Task<IActionResult> Browse(int? categoryId, string? searchQuery, int? minPrice, int? maxPrice)
         {
             IQueryable<Game> games = _context.Games.Include(g => g.Category);
 
@@ -34,9 +34,27 @@ namespace GameStore.Areas.Customer.Controllers
                 games = games.Where(g => g.CategoryId == categoryId);
             }
 
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                games = games.Where(g => g.Title.Contains(searchQuery) || g.Description.Contains(searchQuery));
+            }
+
+            if (minPrice.HasValue)
+            {
+                games = games.Where(g => g.Price >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                games = games.Where(g => g.Price <= maxPrice.Value);
+            }
+
             var categories = await _context.Categories.ToListAsync();
             ViewBag.Categories = categories;
             ViewBag.SelectedCategory = categoryId;
+            ViewBag.SearchQuery = searchQuery;
+            ViewBag.MinPrice = minPrice;
+            ViewBag.MaxPrice = maxPrice;
 
             return View(await games.ToListAsync());
         }

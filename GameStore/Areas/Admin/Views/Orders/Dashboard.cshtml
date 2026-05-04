@@ -1,0 +1,138 @@
+@model GameStore.Areas.Admin.Controllers.OrderDashboardViewModel
+
+@{
+    ViewData["Title"] = "Orders Dashboard";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1><i class="bi bi-graph-up"></i> Orders Dashboard</h1>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-list"></i> View All Orders
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Orders</h6>
+                            <h3 class="mb-0">@Model.TotalOrders</h3>
+                        </div>
+                        <i class="bi bi-receipt display-4 text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Revenue</h6>
+                            <h3 class="mb-0">$@Model.TotalRevenue.ToString("F2")</h3>
+                        </div>
+                        <i class="bi bi-currency-dollar display-4 text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Pending Orders</h6>
+                            <h3 class="mb-0">@Model.PendingOrders</h3>
+                        </div>
+                        <i class="bi bi-clock display-4 text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Completed Orders</h6>
+                            <h3 class="mb-0">@Model.CompletedOrders</h3>
+                        </div>
+                        <i class="bi bi-check-circle display-4 text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Orders by Status -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Orders by Status</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.OrdersByStatus.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var status in Model.OrdersByStatus)
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    @status.Key
+                                    <span class="badge bg-primary rounded-pill">@status.Value</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No orders yet.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Recent Orders</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @if (Model.RecentOrders.Any())
+                        {
+                            @foreach (var order in Model.RecentOrders.Take(5))
+                            {
+                                <a asp-action="Details" asp-route-id="@order.Id" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <div>
+                                            <h6 class="mb-1">Order #@order.Id - @order.FirstName @order.LastName</h6>
+                                            <small class="text-muted">@order.OrderDate.ToString("MMM dd, yyyy")</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-@(order.OrderStatus == "Completed" ? "success" : "info")">@order.OrderStatus</span>
+                                            <p class="mb-0 fw-bold">$@order.TotalAmount.ToString("F2")</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-0 p-3">No recent orders.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

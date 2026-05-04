@@ -1,0 +1,112 @@
+@model GameStore.Models.Order
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="bi bi-receipt"></i> Order #@Model.Id Details</h4>
+                    <a asp-action="OrderHistory" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-arrow-left"></i> Back to Orders
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6>Order Information</h6>
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td class="text-muted">Order Date:</td>
+                                    <td>@Model.OrderDate.ToString("MMMM dd, yyyy HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Order Status:</td>
+                                    <td>
+                                        <span class="badge bg-@(Model.OrderStatus == "Completed" ? "success" : Model.OrderStatus == "Processing" ? "info" : "warning")">
+                                            @Model.OrderStatus
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Payment Status:</td>
+                                    <td>
+                                        <span class="badge bg-@(Model.PaymentStatus == "Completed" ? "success" : "warning")">
+                                            @Model.PaymentStatus
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Customer Information</h6>
+                            <address>
+                                <strong>@Model.FirstName @Model.LastName</strong><br />
+                                @Model.Address<br />
+                                @Model.City, @Model.State @Model.PostalCode<br />
+                                @Model.Country<br />
+                                <i class="bi bi-envelope"></i> @Model.Email<br />
+                                <i class="bi bi-telephone"></i> @Model.Phone
+                            </address>
+                        </div>
+                    </div>
+
+                    <h6>Order Items</h6>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Game</th>
+                                    <th class="text-center">Quantity</th>
+                                    <th class="text-end">Unit Price</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.OrderDetails != null)
+                                {
+                                    @foreach (var item in Model.OrderDetails)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@item.Game?.Title</strong>
+                                                @if (item.Game?.Category != null)
+                                                {
+                                                    <br /><small class="text-muted">@item.Game.Category.Name</small>
+                                                }
+                                            </td>
+                                            <td class="text-center">@item.Quantity</td>
+                                            <td class="text-end">$@item.UnitPrice.ToString("F2")</td>
+                                            <td class="text-end fw-bold">$@item.TotalPrice.ToString("F2")</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="3" class="text-end">Subtotal:</td>
+                                    <td class="text-end">$@Model.SubTotal.ToString("F2")</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end">Tax (8%):</td>
+                                    <td class="text-end">$@Model.Tax.ToString("F2")</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end">Shipping:</td>
+                                    <td class="text-end">$@Model.ShippingCost.ToString("F2")</td>
+                                </tr>
+                                <tr class="table-primary">
+                                    <td colspan="3" class="text-end"><strong>Total Paid:</strong></td>
+                                    <td class="text-end"><strong class="text-primary">$@Model.TotalAmount.ToString("F2")</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
