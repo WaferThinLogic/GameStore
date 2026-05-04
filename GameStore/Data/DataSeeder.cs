@@ -9,11 +9,63 @@ namespace GameStore.Data
 {
     public static class DataSeeder
     {
-        public static async Task SeedAsync(GameStoreDbContext context)
+        public static async Task SeedAsync(GameStoreDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
+            await SeedRolesAndUsersAsync(userManager, roleManager);
             await SeedCategoriesAsync(context);
             await SeedSuppliersAsync(context);
             await SeedGamesAsync(context);
+        }
+
+        private static async Task SeedRolesAndUsersAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        {
+            // Seed Admin role
+            if (!await roleManager.RoleExistsAsync("Admin"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("Admin"));
+            }
+
+            // Seed Customer role
+            if (!await roleManager.RoleExistsAsync("Customer"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("Customer"));
+            }
+
+            // Seed Admin user
+            var adminUser = await userManager.FindByNameAsync("admin@example.com");
+            if (adminUser == null)
+            {
+                adminUser = new ApplicationUser
+                {
+                    UserName = "admin@example.com",
+                    Email = "admin@example.com",
+                    EmailConfirmed = true,
+                    FullName = "Admin User"
+                };
+                var result = await userManager.CreateAsync(adminUser, "Admin123!");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                }
+            }
+
+            // Seed Customer user
+            var customerUser = await userManager.FindByNameAsync("customer@example.com");
+            if (customerUser == null)
+            {
+                customerUser = new ApplicationUser
+                {
+                    UserName = "customer@example.com",
+                    Email = "customer@example.com",
+                    EmailConfirmed = true,
+                    FullName = "Customer User"
+                };
+                var result = await userManager.CreateAsync(customerUser, "Password1!");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(customerUser, "Customer");
+                }
+            }
         }
 
         private static async Task SeedCategoriesAsync(GameStoreDbContext context)
