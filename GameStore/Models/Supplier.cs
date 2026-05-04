@@ -38,6 +38,8 @@ public class Supplier
     [StringLength(1000)]
     public string? Notes { get; set; }
 
-    // Navigation property
+    // Navigation properties
     public ICollection<Game>? Games { get; set; }
+
+    public ICollection<PurchaseOrder>? PurchaseOrders { get; set; }
 }

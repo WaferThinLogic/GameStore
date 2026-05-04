@@ -18,6 +18,11 @@ public class Game
     [Required]
     public decimal Price { get; set; }
 
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal CostPrice { get; set; }
+
+    public int MinStockThreshold { get; set; } = 5;
+
     [StringLength(500)]
     public string? ImageUrl { get; set; }
 
@@ -37,4 +42,10 @@ public class Game
     public ICollection<CartItem>? CartItems { get; set; }
     
     public ICollection<OrderDetail>? OrderDetails { get; set; }
+
+    public ICollection<PurchaseOrderItem>? PurchaseOrderItems { get; set; }
+
+    public ICollection<PriceHistory>? PriceHistories { get; set; }
+
+    public ICollection<StockAlert>? StockAlerts { get; set; }
 }

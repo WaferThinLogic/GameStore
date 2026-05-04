@@ -1,0 +1,148 @@
+@model IEnumerable<GameStore.Models.PurchaseOrder>
+
+@{
+    ViewData["Title"] = "Purchase Orders";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-receipt"></i> Purchase Orders</h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Create New Order
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <strong>Filter by Status:</strong>
+                </div>
+                <div class="col-md-6">
+                    <form asp-action="Index" method="get" class="d-flex gap-2">
+                        <select name="status" class="form-select" asp-items="@(new SelectList(ViewBag.StatusOptions, ViewBag.CurrentStatus))">
+                            <option value="">All Statuses</option>
+                        </select>
+                        <button type="submit" class="btn btn-outline-secondary">Filter</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order Number</th>
+                            <th>Supplier</th>
+                            <th>Order Date</th>
+                            <th>Expected Delivery</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td><strong>@item.OrderNumber</strong></td>
+                                <td>@item.Supplier?.Name</td>
+                                <td>@item.OrderDate.ToString("MMM dd, yyyy")</td>
+                                <td>@(item.ExpectedDeliveryDate?.ToString("MMM dd, yyyy") ?? "-")</td>
+                                <td>@item.TotalAmount.ToString("C")</td>
+                                <td>
+                                    @switch (item.Status)
+                                    {
+                                        case "Draft":
+                                            <span class="badge bg-secondary">@item.Status</span>
+                                            break;
+                                        case "Submitted":
+                                            <span class="badge bg-info">@item.Status</span>
+                                            break;
+                                        case "Confirmed":
+                                            <span class="badge bg-primary">@item.Status</span>
+                                            break;
+                                        case "Received":
+                                            <span class="badge bg-success">@item.Status</span>
+                                            break;
+                                        case "Cancelled":
+                                            <span class="badge bg-danger">@item.Status</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary">@item.Status</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        @if (item.Status == "Draft")
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <form asp-action="Submit" asp-route-id="@item.Id" method="post" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-success" title="Submit Order">
+                                                    <i class="bi bi-send"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                        @if (item.Status == "Submitted")
+                                        {
+                                            <form asp-action="Confirm" asp-route-id="@item.Id" method="post" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-primary" title="Confirm Order">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </button>
+                                            </form>
+                                            <form asp-action="Receive" asp-route-id="@item.Id" method="post" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-success" title="Receive Order">
+                                                    <i class="bi bi-box-seam"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                        @if (item.Status == "Confirmed")
+                                        {
+                                            <form asp-action="Receive" asp-route-id="@item.Id" method="post" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-success" title="Receive Order">
+                                                    <i class="bi bi-box-seam"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                        @if (item.Status == "Draft" || item.Status == "Submitted")
+                                        {
+                                            <form asp-action="Cancel" asp-route-id="@item.Id" method="post" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-danger" title="Cancel Order" onclick="return confirm('Are you sure you want to cancel this order?')">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

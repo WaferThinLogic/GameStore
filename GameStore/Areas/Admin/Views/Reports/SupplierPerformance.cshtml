@@ -1,0 +1,130 @@
+@model IEnumerable<GameStore.Areas.Admin.Controllers.SupplierPerformanceViewModel>
+
+@{
+    ViewData["Title"] = "Supplier Performance";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-truck"></i> Supplier Performance</h1>
+        <a asp-action="Dashboard" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    @if (Model.Any())
+    {
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="text-center">
+                            <h3 class="text-primary">@Model.Count()</h3>
+                            <p class="text-muted mb-0">Total Suppliers</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="text-center">
+                            <h3 class="text-success">@Model.Sum(s => s.TotalOrders)</h3>
+                            <p class="text-muted mb-0">Total Orders</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="text-center">
+                            <h3 class="text-info">@Model.Sum(s => s.TotalProducts)</h3>
+                            <p class="text-muted mb-0">Products Sourced</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="text-center">
+                            <h3 class="text-warning">@Model.Sum(s => s.TotalOrderValue).ToString("C")</h3>
+                            <p class="text-muted mb-0">Total Order Value</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supplier Table -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Performance Metrics</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Supplier</th>
+                                <th class="text-center">Total Orders</th>
+                                <th class="text-center">Completed</th>
+                                <th class="text-center">Pending</th>
+                                <th class="text-center">Products</th>
+                                <th class="text-end">Order Value</th>
+                                <th class="text-end">Avg Order</th>
+                                <th class="text-center">On-Time Rate</th>
+                                <th>Performance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var supplier in Model)
+                            {
+                                var performanceClass = supplier.OnTimeDeliveryRate >= 90 ? "bg-success" :
+                                                     supplier.OnTimeDeliveryRate >= 70 ? "bg-warning" : "bg-danger";
+                                <tr>
+                                    <td><strong>@supplier.SupplierName</strong></td>
+                                    <td class="text-center">@supplier.TotalOrders</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success">@supplier.CompletedOrders</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary">@supplier.PendingOrders</span>
+                                    </td>
+                                    <td class="text-center">@supplier.TotalProducts</td>
+                                    <td class="text-end">@supplier.TotalOrderValue.ToString("C")</td>
+                                    <td class="text-end">@supplier.AverageOrderValue.ToString("C")</td>
+                                    <td class="text-center">
+                                        <span class="badge @performanceClass">@supplier.OnTimeDeliveryRate.ToString("F0")%</span>
+                                    </td>
+                                    <td>
+                                        @if (supplier.OnTimeDeliveryRate >= 90)
+                                        {
+                                            <span class="text-success"><i class="bi bi-star-fill"></i> Excellent</span>
+                                        }
+                                        else if (supplier.OnTimeDeliveryRate >= 70)
+                                        {
+                                            <span class="text-warning"><i class="bi bi-star-half"></i> Good</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-danger"><i class="bi bi-star"></i> Needs Improvement</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            <i class="bi bi-info-circle"></i> No suppliers found. Add suppliers to track their performance.
+        </div>
+    }
+</div>

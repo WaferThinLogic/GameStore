@@ -1,0 +1,173 @@
+@model GameStore.Areas.Admin.Controllers.ProfitabilityViewModel
+
+@{
+    ViewData["Title"] = "Profitability Analysis";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-graph-up"></i> Profitability Analysis</h1>
+        <a asp-action="Dashboard" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Date Range Filter -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form asp-action="Profitability" method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" name="startDate" class="form-control" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">End Date</label>
+                    <input type="date" name="endDate" class="form-control" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="bi bi-funnel"></i> Apply Filter
+                    </button>
+                    <a asp-action="Profitability" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-success">
+                <div class="card-body">
+                    <div class="text-center">
+                        <h6 class="text-muted">Total Revenue</h6>
+                        <h3 class="text-success mb-0">@Model.TotalRevenue.ToString("C")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-danger">
+                <div class="card-body">
+                    <div class="text-center">
+                        <h6 class="text-muted">Total Cost</h6>
+                        <h3 class="text-danger mb-0">@Model.TotalCost.ToString("C")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-primary">
+                <div class="card-body">
+                    <div class="text-center">
+                        <h6 class="text-muted">Total Profit</h6>
+                        <h3 class="text-primary mb-0">@Model.TotalProfit.ToString("C")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-warning">
+                <div class="card-body">
+                    <div class="text-center">
+                        <h6 class="text-muted">Profit Margin</h6>
+                        <h3 class="text-warning mb-0">@Model.ProfitMargin.ToString("F1")%</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Breakdown -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Monthly Breakdown</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Month</th>
+                                    <th class="text-end">Revenue</th>
+                                    <th class="text-end">Cost</th>
+                                    <th class="text-end">Profit</th>
+                                    <th class="text-end">Margin</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var month in Model.RevenueByMonth.OrderByDescending(k => k.Key))
+                                {
+                                    var cost = Model.CostByMonth.ContainsKey(month.Key) ? Model.CostByMonth[month.Key] : 0;
+                                    var profit = Model.ProfitByMonth.ContainsKey(month.Key) ? Model.ProfitByMonth[month.Key] : 0;
+                                    var margin = month.Value > 0 ? (profit / month.Value) * 100 : 0;
+                                    <tr>
+                                        <td>@($"{month.Key.Substring(0, 4)}-{month.Key.Substring(5, 2)}")</td>
+                                        <td class="text-end">@month.Value.ToString("C")</td>
+                                        <td class="text-end text-danger">@cost.ToString("C")</td>
+                                        <td class="text-end @(profit >= 0 ? "text-success" : "text-danger")">@profit.ToString("C")</td>
+                                        <td class="text-end">
+                                            <span class="badge @(margin >= 20 ? "bg-success" : margin >= 10 ? "bg-warning" : "bg-danger")">
+                                                @margin.ToString("F1")%
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Category Breakdown</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Category</th>
+                                    <th class="text-end">Revenue</th>
+                                    <th class="text-end">Cost</th>
+                                    <th class="text-end">Profit</th>
+                                    <th class="text-end">Margin</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var category in Model.RevenueByCategory.OrderByDescending(k => k.Value))
+                                {
+                                    var categoryName = Model.CategoryNames.ContainsKey(category.Key) ? Model.CategoryNames[category.Key] : "Unknown";
+                                    var cost = Model.CostByCategory.ContainsKey(category.Key) ? Model.CostByCategory[category.Key] : 0;
+                                    var profit = Model.ProfitByCategory.ContainsKey(category.Key) ? Model.ProfitByCategory[category.Key] : 0;
+                                    var margin = category.Value > 0 ? (profit / category.Value) * 100 : 0;
+                                    <tr>
+                                        <td>@categoryName</td>
+                                        <td class="text-end">@category.Value.ToString("C")</td>
+                                        <td class="text-end text-danger">@cost.ToString("C")</td>
+                                        <td class="text-end @(profit >= 0 ? "text-success" : "text-danger")">@profit.ToString("C")</td>
+                                        <td class="text-end">
+                                            <span class="badge @(margin >= 20 ? "bg-success" : margin >= 10 ? "bg-warning" : "bg-danger")">
+                                                @margin.ToString("F1")%
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

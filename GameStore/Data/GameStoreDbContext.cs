@@ -18,6 +18,10 @@ public class GameStoreDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<CartItem> CartItems { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderDetail> OrderDetails { get; set; }
+    public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
+    public DbSet<PurchaseOrderItem> PurchaseOrderItems { get; set; }
+    public DbSet<PriceHistory> PriceHistories { get; set; }
+    public DbSet<StockAlert> StockAlerts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -117,6 +121,52 @@ public class GameStoreDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(e => e.Supplier)
                   .WithMany(s => s.Games)
                   .HasForeignKey(e => e.SupplierId);
+        });
+
+        // Configure PurchaseOrder entity
+        builder.Entity<PurchaseOrder>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.OrderNumber).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.TotalAmount).HasColumnType("decimal(18,2)");
+            entity.HasOne(e => e.Supplier)
+                  .WithMany(s => s.PurchaseOrders)
+                  .HasForeignKey(e => e.SupplierId);
+        });
+
+        // Configure PurchaseOrderItem entity
+        builder.Entity<PurchaseOrderItem>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UnitCost).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.TotalCost).HasColumnType("decimal(18,2)");
+            entity.HasOne(e => e.PurchaseOrder)
+                  .WithMany(p => p.PurchaseOrderItems)
+                  .HasForeignKey(e => e.PurchaseOrderId);
+            entity.HasOne(e => e.Game)
+                  .WithMany(g => g.PurchaseOrderItems)
+                  .HasForeignKey(e => e.GameId);
+        });
+
+        // Configure PriceHistory entity
+        builder.Entity<PriceHistory>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.CostPrice).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.SellingPrice).HasColumnType("decimal(18,2)");
+            entity.HasOne(e => e.Game)
+                  .WithMany(g => g.PriceHistories)
+                  .HasForeignKey(e => e.GameId);
+        });
+
+        // Configure StockAlert entity
+        builder.Entity<StockAlert>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasOne(e => e.Game)
+                  .WithMany(g => g.StockAlerts)
+                  .HasForeignKey(e => e.GameId);
         });
     }
 }

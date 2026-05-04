@@ -1,0 +1,240 @@
+@model GameStore.Models.PurchaseOrder
+
+@{
+    ViewData["Title"] = "Edit Purchase Order";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-pencil"></i> Edit Purchase Order</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Order Information</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" id="editOrderForm">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="Id" />
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="SupplierId" class="form-label">Supplier <span class="text-danger">*</span></label>
+                                <select asp-for="SupplierId" class="form-select" asp-items="ViewBag.SupplierId">
+                                    <option value="">-- Select Supplier --</option>
+                                </select>
+                                <span asp-validation-for="SupplierId" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ExpectedDeliveryDate" class="form-label">Expected Delivery Date</label>
+                                <input asp-for="ExpectedDeliveryDate" type="date" class="form-control" />
+                                <span asp-validation-for="ExpectedDeliveryDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Notes" class="form-label">Notes</label>
+                            <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <hr />
+
+                        <h5 class="mb-3">Order Items</h5>
+                        
+                        <div id="orderItems">
+                            @if (Model.PurchaseOrderItems != null && Model.PurchaseOrderItems.Any())
+                            {
+                                @foreach (var item in Model.PurchaseOrderItems)
+                                {
+                                    <div class="item-row mb-3 p-3 border rounded">
+                                        <div class="row g-2">
+                                            <div class="col-md-5">
+                                                <label class="form-label">Game</label>
+                                                <select name="gameIds" class="form-select game-select" asp-items="ViewBag.Games">
+                                                    <option value="">-- Select Game --</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label">Quantity</label>
+                                                <input type="number" name="quantities" class="form-control quantity" value="@item.Quantity" min="1" />
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Unit Cost ($)</label>
+                                                <input type="number" name="unitCosts" class="form-control unit-cost" value="@item.UnitCost" step="0.01" min="0" />
+                                            </div>
+                                            <div class="col-md-2 d-flex align-items-end">
+                                                <button type="button" class="btn btn-outline-danger remove-item">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="item-row mb-3 p-3 border rounded">
+                                    <div class="row g-2">
+                                        <div class="col-md-5">
+                                            <label class="form-label">Game</label>
+                                            <select name="gameIds" class="form-select game-select" asp-items="ViewBag.Games">
+                                                <option value="">-- Select Game --</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">Quantity</label>
+                                            <input type="number" name="quantities" class="form-control quantity" value="1" min="1" />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Unit Cost ($)</label>
+                                            <input type="number" name="unitCosts" class="form-control unit-cost" value="0.00" step="0.01" min="0" />
+                                        </div>
+                                        <div class="col-md-2 d-flex align-items-end">
+                                            <button type="button" class="btn btn-outline-danger remove-item">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <button type="button" class="btn btn-outline-primary mb-3" id="addItem">
+                            <i class="bi bi-plus-lg"></i> Add Item
+                        </button>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Items:</span>
+                        <span id="itemCount">0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total Quantity:</span>
+                        <span id="totalQuantity">0</span>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between">
+                        <strong>Total Amount:</strong>
+                        <strong id="totalAmount">$0.00</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const itemsContainer = document.getElementById('orderItems');
+            const addItemBtn = document.getElementById('addItem');
+            
+            // Set initial values for existing items
+            document.querySelectorAll('.item-row').forEach((row, index) => {
+                const gameSelect = row.querySelector('.game-select');
+                const existingItems = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PurchaseOrderItems?.Select(i => i.GameId) ?? new int[] { }));
+                if (existingItems.length > index) {
+                    gameSelect.value = existingItems[index];
+                }
+            });
+            
+            function updateSummary() {
+                let count = 0;
+                let totalQty = 0;
+                let total = 0;
+                
+                document.querySelectorAll('.item-row').forEach(row => {
+                    const gameSelect = row.querySelector('.game-select');
+                    const quantity = parseFloat(row.querySelector('.quantity').value) || 0;
+                    const unitCost = parseFloat(row.querySelector('.unit-cost').value) || 0;
+                    
+                    if (gameSelect.value) {
+                        count++;
+                        totalQty += quantity;
+                        total += quantity * unitCost;
+                    }
+                });
+                
+                document.getElementById('itemCount').textContent = count;
+                document.getElementById('totalQuantity').textContent = totalQty;
+                document.getElementById('totalAmount').textContent = '$' + total.toFixed(2);
+            }
+            
+            addItemBtn.addEventListener('click', function() {
+                const template = document.querySelector('.item-row');
+                const newRow = template.cloneNode(true);
+                
+                newRow.querySelectorAll('select').forEach(select => {
+                    select.value = '';
+                });
+                newRow.querySelectorAll('input').forEach(input => {
+                    if (input.type === 'number') {
+                        input.value = input.classList.contains('unit-cost') ? '0.00' : '1';
+                    }
+                });
+                
+                newRow.querySelector('.remove-item').addEventListener('click', function() {
+                    if (document.querySelectorAll('.item-row').length > 1) {
+                        this.closest('.item-row').remove();
+                        updateSummary();
+                    }
+                });
+                
+                itemsContainer.appendChild(newRow);
+            });
+            
+            document.querySelectorAll('.remove-item').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (document.querySelectorAll('.item-row').length > 1) {
+                        this.closest('.item-row').remove();
+                        updateSummary();
+                    }
+                });
+            });
+            
+            itemsContainer.addEventListener('input', function(e) {
+                if (e.target.classList.contains('quantity') || e.target.classList.contains('unit-cost')) {
+                    updateSummary();
+                }
+            });
+            
+            document.getElementById('editOrderForm').addEventListener('submit', function(e) {
+                let hasItem = false;
+                document.querySelectorAll('.game-select').forEach(select => {
+                    if (select.value) hasItem = true;
+                });
+                
+                if (!hasItem) {
+                    e.preventDefault();
+                    alert('Please add at least one item to the order.');
+                }
+            });
+            
+            // Initial summary update
+            updateSummary();
+        });
+    </script>
+}

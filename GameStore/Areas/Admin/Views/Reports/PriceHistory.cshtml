@@ -1,0 +1,93 @@
+@model GameStore.Areas.Admin.Controllers.PriceHistoryViewModel
+
+@{
+    ViewData["Title"] = "Price History";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-clock-history"></i> Price History</h1>
+        <a asp-action="Dashboard" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Filter -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form asp-action="PriceHistory" method="get" class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label class="form-label">Filter by Game</label>
+                    <select name="gameId" class="form-select">
+                        <option value="">All Games</option>
+                        @foreach (var game in Model.Games)
+                        {
+                            <option value="@game.Id" selected="@(Model.SelectedGameId == game.Id)">@game.Title</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="bi bi-funnel"></i> Filter
+                    </button>
+                    <a asp-action="PriceHistory" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.PriceHistories.Any())
+    {
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Price Change History</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Game</th>
+                                <th>Category</th>
+                                <th class="text-end">Cost Price</th>
+                                <th class="text-end">Selling Price</th>
+                                <th class="text-end">Margin</th>
+                                <th>Effective Date</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var history in Model.PriceHistories)
+                            {
+                                var margin = history.SellingPrice > 0 
+                                    ? ((history.SellingPrice - history.CostPrice) / history.SellingPrice) * 100 
+                                    : 0;
+                                <tr>
+                                    <td><strong>@history.Game?.Title</strong></td>
+                                    <td>@history.Game?.Category?.Name</td>
+                                    <td class="text-end text-danger">@history.CostPrice.ToString("C")</td>
+                                    <td class="text-end text-success">@history.SellingPrice.ToString("C")</td>
+                                    <td class="text-end">
+                                        <span class="badge @(margin >= 20 ? "bg-success" : margin >= 10 ? "bg-warning" : "bg-danger")">
+                                            @margin.ToString("F1")%
+                                        </span>
+                                    </td>
+                                    <td>@history.EffectiveDate.ToString("MMM dd, yyyy")</td>
+                                    <td>@history.ChangeReason</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            <i class="bi bi-info-circle"></i> No price history records found. Price history is automatically recorded when purchase orders are submitted.
+        </div>
+    }
+</div>

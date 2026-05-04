@@ -1,0 +1,161 @@
+@model GameStore.Areas.Admin.Controllers.StockMonitoringViewModel
+
+@{
+    ViewData["Title"] = "Stock Monitoring";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-box-seam"></i> Stock Monitoring</h1>
+        <a asp-action="Dashboard" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form asp-action="StockMonitoring" method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Category</label>
+                    <select name="categoryId" class="form-select">
+                        <option value="">All Categories</option>
+                        @foreach (var cat in Model.Categories)
+                        {
+                            <option value="@cat.Id" selected="@(Model.SelectedCategoryId == cat.Id)">@cat.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Supplier</label>
+                    <select name="supplierId" class="form-select">
+                        <option value="">All Suppliers</option>
+                        @foreach (var sup in Model.Suppliers)
+                        {
+                            <option value="@sup.Id" selected="@(Model.SelectedSupplierId == sup.Id)">@sup.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="bi bi-funnel"></i> Filter
+                    </button>
+                    <a asp-action="StockMonitoring" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stock Status Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-danger">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Out of Stock</h6>
+                            <h3 class="mb-0 text-danger">@Model.Games.Count(g => g.Stock == 0)</h3>
+                        </div>
+                        <i class="bi bi-x-circle text-danger" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Low Stock</h6>
+                            <h3 class="mb-0 text-warning">@Model.Games.Count(g => g.Stock > 0 && g.Stock <= g.MinStockThreshold)</h3>
+                        </div>
+                        <i class="bi bi-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">In Stock</h6>
+                            <h3 class="mb-0 text-success">@Model.Games.Count(g => g.Stock > g.MinStockThreshold)</h3>
+                        </div>
+                        <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Inventory Status</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Supplier</th>
+                            <th class="text-center">Current Stock</th>
+                            <th class="text-center">Min Threshold</th>
+                            <th class="text-end">Cost Price</th>
+                            <th class="text-end">Selling Price</th>
+                            <th class="text-end">Stock Value</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var game in Model.Games)
+                        {
+                            <tr>
+                                <td><strong>@game.Title</strong></td>
+                                <td>@game.Category?.Name</td>
+                                <td>@game.Supplier?.Name</td>
+                                <td class="text-center">
+                                    @if (game.Stock == 0)
+                                    {
+                                        <span class="badge bg-danger">@game.Stock</span>
+                                    }
+                                    else if (game.Stock <= game.MinStockThreshold)
+                                    {
+                                        <span class="badge bg-warning text-dark">@game.Stock</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">@game.Stock</span>
+                                    }
+                                </td>
+                                <td class="text-center">@game.MinStockThreshold</td>
+                                <td class="text-end">@game.CostPrice.ToString("C")</td>
+                                <td class="text-end">@game.Price.ToString("C")</td>
+                                <td class="text-end">@(game.Stock * game.CostPrice).ToString("C")</td>
+                                <td>
+                                    @if (game.Stock == 0)
+                                    {
+                                        <span class="badge bg-danger">Out of Stock</span>
+                                    }
+                                    else if (game.Stock <= game.MinStockThreshold)
+                                    {
+                                        <span class="badge bg-warning text-dark">Low Stock</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">In Stock</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
